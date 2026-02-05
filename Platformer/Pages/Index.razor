@@ -1,0 +1,20 @@
+@page "/"
+@inject IJSRuntime JS
+
+<div class="game-shell">
+  <h1>Platformer</h1>
+  <p class="instructions-html">Move: A/D or ←/→ • Jump: W/↑/Space • Crouch: S/↓ • Shoot: Z</p>
++  <div class="canvas-wrap">
+    <canvas id="gameCanvas" tabindex="0"></canvas>
+  </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("game.init");
+        }
+    }
+}

@@ -1,0 +1,31 @@
+# ===============================
+# .NET / Blazor
+# ===============================
+bin/
+obj/
+
+# User-specific files
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+artifacts/
+
+# ===============================
+# OS junk
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Logs
+# ===============================
+*.log
+
+# ===============================
+# Optional: secrets
+# ===============================
+appsettings.Development.json
