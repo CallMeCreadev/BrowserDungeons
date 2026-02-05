@@ -2,32 +2,25 @@
 @inject IJSRuntime JS
 
 <div class="game-shell">
-  <h1>Platformer</h1>
-  <p class="instructions-html">Move: A/D or ←/→ • Jump: W/↑/Space • Crouch: S/↓ • Shoot: Z</p>
-+
-  <div class="controls-inline">
-+
-    <label><input id="showFps" type="checkbox" checked /> Show FPS</label>
-+
-    <label style="margin-left:12px"><input id="showPos" type="checkbox" /> Show Position</label>
-+
-  </div>
-+
   <div class="canvas-wrap">
-+
     <canvas id="gameCanvas" tabindex="0"></canvas>
-+
-    <div id="winOverlay" class="win-overlay" style="display:none">You Win! Press R to restart</div>
-+
+
+    <div id="winOverlay" class="win-overlay" style="display:none">
+      You Win! Press R to restart
+    </div>
+
+    <div id="fireOverlay" class="win-overlay" style="display:none">
+      Caught by fire! Press R to try again
+    </div>
   </div>
-+</div>
+</div>
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
     {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("platformer.init");
-        }
+      await JS.InvokeVoidAsync("platformer.init");
     }
+  }
 }
