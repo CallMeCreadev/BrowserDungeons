@@ -3,7 +3,7 @@
 # ===============================
 bin/
 obj/
-
+docs/inspiration_local/
 # User-specific files
 .vscode/
 *.user
