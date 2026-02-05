@@ -543,7 +543,10 @@ window.platformer = (function () {
       const canDrawImg = platformImg && platformImg.complete && platformImg.naturalWidth > 0;
 
       if (p.color === "#22c55e" && canDrawImg) {
-        ctx.drawImage(platformImg, p.x, p.y, p.w, p.h);
+        const spriteScale = 1.5;
+        const spriteH = Math.floor(p.h * spriteScale);
+        const spriteYOffset = spriteH - p.h;
+        ctx.drawImage(platformImg, p.x, p.y - spriteYOffset, p.w, spriteH);
       } else {
         ctx.fillStyle = color;
         ctx.fillRect(p.x, p.y, p.w, p.h);
