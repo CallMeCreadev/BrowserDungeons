@@ -18,7 +18,8 @@ window.platformer = (function() {
     jumpSpeed: -740,
     tileColor: '#2d6cdf',
     bgTop: '#8fd3ff',
-    bgBottom: '#071126'
+    bgBottom: '#071126',
+    flameSpeedCoefficient: 140
   };
 
   const world = { width: 4800, height: 3200 };
@@ -33,6 +34,7 @@ window.platformer = (function() {
 
   const bullets = [];
   const cam = { x: 0, y: 0 };
+  let flame = { height: 0 };
   let lastTime = 0, accum = 0;
   let fps = 60, frames = 0, fpsTimer = 0;
 
@@ -112,15 +114,15 @@ window.platformer = (function() {
 
     while (x < world.width - 400) {
       const barW = Math.floor(minBarW + Math.random() * (maxBarW - minBarW + 1));
-      const redH = Math.max(10, Math.floor(player.originalH * 0.25));
-      const red = { x: x, y: y, w: barW, h: redH, color: '#dc2626', solid: true, fadeTimer: null, isFading: false };
-      platforms.push(red);
+      const barH = Math.max(10, Math.floor(player.originalH * 0.25));
+      const bar = { x: x, y: y, w: barW, h: barH, color: '#22c55e', solid: true, fadeTimer: null, isFading: false };
+      platforms.push(bar);
 
       const underGap = Math.floor(vSpaceMin + Math.random() * (vSpaceMaxUnder - vSpaceMin + 1));
-      const greenY = red.y + red.h + underGap;
-      const greenW = Math.max(minBarW, Math.floor(barW * (0.9 + Math.random() * 0.4)));
-      const green = { x: x + Math.floor((barW - greenW) / 2), y: greenY, w: greenW, h: Math.max(12, Math.floor(player.originalH * 0.33)), color: '#16a34a', solid: true };
-      platforms.push(green);
+      const barY2 = bar.y + bar.h + underGap;
+      const barW2 = Math.max(minBarW, Math.floor(barW * (0.9 + Math.random() * 0.4)));
+      const bar2 = { x: x + Math.floor((barW2 - barW2) / 2), y: barY2, w: barW2, h: Math.max(12, Math.floor(player.originalH * 0.33)), color: '#22c55e', solid: true, fadeTimer: null, isFading: false };
+      platforms.push(bar2);
 
       const minStep = Math.floor(player.originalW * 1.0);
       const maxStep = Math.max(minStep + 20, Math.floor(horizReach * 0.9));
@@ -202,7 +204,7 @@ window.platformer = (function() {
           } else {
             if (dy > 0) { player.y += py; player.vy = 0; }
             else { player.y -= py; player.vy = 0; player.onGround = true; }
-            if (player.onGround && p.color === '#dc2626' && p.fadeTimer === null) {
+            if (player.onGround && (p.color === '#22c55e') && p.fadeTimer === null) {
               p.fadeTimer = 1.0;
             }
           }
@@ -235,6 +237,13 @@ window.platformer = (function() {
     }
 
     for (const k in keys) prevKeys[k] = keys[k];
+
+    flame.height += cfg.flameSpeedCoefficient * dt;
+
+    const flameTop = world.height - flame.height;
+    if (player.y + player.h > flameTop) {
+      respawn();
+    }
   }
 
   function respawn() {
@@ -246,6 +255,7 @@ window.platformer = (function() {
     player.onGround = false;
     player.crouched = false;
     player.jumpCount = 2;
+    flame.height = 0;
     const win = document.getElementById('winOverlay');
     if (win) win.style.display = 'none';
   }
@@ -293,6 +303,33 @@ window.platformer = (function() {
     for (let b of bullets) ctx.fillRect(b.x, b.y, b.w, b.h);
 
     ctx.restore();
+
+    const flameBottomWorldY = world.height;
+    const flameTopWorldY = world.height - flame.height;
+    const flameBottomScreenY = flameBottomWorldY - cam.y;
+    const flameTopScreenY = flameTopWorldY - cam.y;
+
+    if (flameBottomScreenY > 0) {
+      ctx.fillStyle = 'rgba(220, 20, 20, 0.8)';
+      const triW = 80;
+      const triH = 100;
+      const triangleSpacing = triW * 0.8;
+      const startScreenY = Math.max(0, flameTopScreenY);
+      const endScreenY = Math.min(H, flameBottomScreenY);
+      
+      for (let x = -triangleSpacing; x < W + triangleSpacing; x += triangleSpacing) {
+        for (let screenY = startScreenY - triH; screenY < endScreenY + triH; screenY += triH * 1.2) {
+          if (screenY > -triH && screenY < H) {
+            ctx.beginPath();
+            ctx.moveTo(x, screenY + triH);
+            ctx.lineTo(x - triW / 2, screenY);
+            ctx.lineTo(x + triW / 2, screenY);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+      }
+    }
 
     const showFps = document.getElementById('showFps')?.checked;
     const showPos = document.getElementById('showPos')?.checked;
